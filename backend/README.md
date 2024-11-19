@@ -1,6 +1,6 @@
 
 # BACKEND
 
-## COMMEND
+## COMMAND
 
 ## INSTALL
