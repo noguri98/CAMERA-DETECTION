@@ -1,6 +1,15 @@
+
 import cv2
 import sys
 import struct
+from object import ObjectDetector
+
+# 객체 탐지 초기화
+detector = ObjectDetector(
+    model_path="yolov3.weights",
+    config_path="yolov3.cfg",
+    labels_path="coco.names"
+)
 
 def main():
     cap = cv2.VideoCapture(0)
@@ -13,17 +22,16 @@ def main():
         if not ret:
             print("프레임을 읽을 수 없습니다.", file=sys.stderr)
             break
-        
-        # 프레임 좌우 반전
-        frame = cv2.flip(frame, 1)  # 1: 좌우 반전
-        
+
+        # 객체 탐지 수행
+        detections = detector.detect(frame)
+        print(f"탐지 결과: {detections}", file=sys.stderr)
+
+        # 프레임 전송
         ret, buffer = cv2.imencode('.jpg', frame)
         if not ret:
             print("프레임 인코딩 실패", file=sys.stderr)
             break
-
-        # 디버깅: 전송할 데이터 크기 출력
-        # print(f"전송할 프레임 크기: {len(buffer)} 바이트", file=sys.stderr)
 
         sys.stdout.buffer.write(struct.pack('<L', len(buffer)))
         sys.stdout.buffer.flush()
