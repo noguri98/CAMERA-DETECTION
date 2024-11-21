@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import './App.css';
 
 function App() {
 
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    fetch('http://localhost:3001/text')
-      .then(response => response.text())
-      .then(data => setMessage(data))
-      .catch(error => console.error('Error:', error));
-  }, []);
-
   return (
-    <div>
-      <h1> {message} </h1>
+    <div className="frame-box">
+      <img
+        className='frame'
+        src="http://localhost:3001/camera"
+        alt="카메라 스트리밍"
+        // style={{ width: '100%', height: 'auto' }}
+      />
     </div>
   );
 }

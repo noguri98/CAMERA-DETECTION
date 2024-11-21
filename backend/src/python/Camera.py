@@ -1,31 +1,33 @@
 import cv2
-import base64
 import sys
-import time
+import struct
 
-def stream_camera():
+def main():
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
-        print("카메라를 열 수 없습니다.")
+        print("카메라를 열 수 없습니다.", file=sys.stderr)
         sys.exit(1)
 
-    try:
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                print("프레임을 읽을 수 없습니다.")
-                break
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("프레임을 읽을 수 없습니다.", file=sys.stderr)
+            break
 
-            _, buffer = cv2.imencode('.jpg', frame)
-            frame_base64 = base64.b64encode(buffer).decode('utf-8')
+        ret, buffer = cv2.imencode('.jpg', frame)
+        if not ret:
+            print("프레임 인코딩 실패", file=sys.stderr)
+            break
 
-            # Base64 프레임 출력
-            print(frame_base64)
-            sys.stdout.flush()  # 출력 버퍼 비우기 (Node.js가 즉시 수신 가능)
+        # 디버깅: 전송할 데이터 크기 출력
+        # print(f"전송할 프레임 크기: {len(buffer)} 바이트", file=sys.stderr)
 
-            time.sleep(0.03)  # 30 FPS 속도로 조정
-    finally:
-        cap.release()
+        sys.stdout.buffer.write(struct.pack('<L', len(buffer)))
+        sys.stdout.buffer.flush()
+        sys.stdout.buffer.write(buffer)
+        sys.stdout.buffer.flush()
+
+    cap.release()
 
 if __name__ == "__main__":
-    stream_camera()
+    main()
